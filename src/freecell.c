@@ -20,6 +20,7 @@
 #include <string.h>
 #include <getopt.h>
 #include <ncurses.h>
+#include <time.h>
 
 #include "freecell.h"
 
@@ -95,6 +96,13 @@ void render() {
 
 	erase();
 	mvaddstr(0, 0, "space                                  enter");
+	printf("\033]0;Freecell #%d [%2d %2d %2d %2d] Move %3d Undo %3d\007", 
+        seed, 
+        pile[0] ? pile[0]->value : 0,
+        pile[1] ? pile[1]->value : 0,
+        pile[2] ? pile[2]->value : 0,
+        pile[3] ? pile[3]->value : 0,
+        nmoves, nundos);
 	snprintf(buf, sizeof(buf), "#%d", seed);
 	mvaddstr(0, 22 - strlen(buf) / 2, buf);
 	mvaddstr(1, 0, "[   ][   ][   ][   ]    [   ][   ][   ][   ]");
@@ -397,10 +405,12 @@ int main(int argc, char **argv) {
 	argc -= optind;
 	argv += optind;
 
+    time_t start = time(0);
+
 	if(argc == 1) {
 		seed = atoi(argv[0]);
 	} else if(argc == 0) {
-		srand(time(0));
+		srand(start);
 		seed = rand() & 0xffffffff;
 	} else usage();
 
@@ -451,6 +461,26 @@ int main(int argc, char **argv) {
 			mvaddstr(3, 17, str);
 			move(5, 43);
 			refresh();
+
+            // Save to .freecell
+            {
+
+                char buf[256];
+
+                sprintf(&buf, "%s/.freecell", getenv("HOME"));
+                FILE* f = fopen(&buf, "a");
+
+                strftime(&buf,256,"%m/%d/%Y",localtime(&start));
+
+                fprintf(f, "%s, %5.0f,  %d,%3d,%3d\n", &buf, difftime(time(0), start),
+                      seed, nmoves, nundos);
+                fclose(f); 
+
+            }
+
+
+
+
 			break;
 		}
 
