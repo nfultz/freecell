@@ -163,7 +163,7 @@ void render() {
 		}
 		if(height < col->ncard) height = col->ncard;
 	}
-	mvaddstr(5 + height, 0, "    a    b    c    d    e    f    g    h");
+	mvaddstr(5 + height, 0, "    a    s    d    f    j    k    l    ;");
 	snprintf(buf, sizeof(buf), "%d move%s, %d undo%s", nmoves, (nmoves == 1)? "" : "s", nundos, (nundos == 1)? "" : "s");
 	mvaddstr(6 + height, 44 - strlen(buf), buf);
 	mvaddstr(6 + height, 0, "quit undo ?=help");
@@ -578,8 +578,21 @@ int main(int argc, char **argv) {
 					wselected = 0;
 				}
 				face = 1;
-			} else if(c >= 'a' && c <= 'h') {
-				struct column *col = &column[c - 'a'];
+			} else if(c == ';' || c >= 'a' && c <= 's') {
+
+                switch(c) {
+                    case 'a' : c = 0; break;
+                    case 's' : c = 1; break;
+                    case 'd' : c = 2; break;
+                    case 'f' : c = 3; break;
+                    case 'j' : c = 4; break;
+                    case 'k' : c = 5; break;
+                    case 'l' : c = 6; break;
+                    case ';' : c = 7; break;
+                    default  : continue;
+                }
+
+				struct column *col = &column[c];
 				int may = 0;
 
 				if(selected) {
@@ -627,7 +640,7 @@ int main(int argc, char **argv) {
 				} else {
 					int maxn, i;
 
-					selcol = c - 'a';
+					selcol = c ;
 					if(column[selcol].ncard) {
 						selected = 1;
 						seln = arg? arg : 1;
