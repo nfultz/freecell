@@ -87,6 +87,13 @@ void cardstr(struct card *c, int sel) {
 			attrset(COLOR_PAIR(2));
 		}
 	}
+
+    int n = pile[c->kind] ? pile[c->kind]->value + 1 : 1; 
+    if(c->value == n)
+        attron(A_BOLD);
+
+
+
 	addstr(buf);
 	attrset(A_NORMAL);
 }
