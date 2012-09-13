@@ -412,10 +412,11 @@ int main(int argc, char **argv) {
 	curs_set(0);
 	start_color();
 	keypad(stdscr, TRUE);
-	init_pair(1, COLOR_CYAN, COLOR_BLACK);
+    use_default_colors();
+	init_pair(1, COLOR_CYAN, -1);
 	init_pair(2, COLOR_WHITE, COLOR_BLUE);
 	init_pair(3, COLOR_CYAN, COLOR_BLUE);
-	init_pair(4, COLOR_YELLOW, COLOR_BLACK);
+	init_pair(4, COLOR_YELLOW, -1);
 	while(running) {
 		int c;
 
