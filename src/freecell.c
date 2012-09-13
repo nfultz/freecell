@@ -594,7 +594,7 @@ int main(int argc, char **argv) {
 				struct column *col = &column[c];
 				int may = 0;
 
-				if(selected) {
+				if(selected && selcol != c) {
 					int nfree = 0, i;
 
 					for(i = 0; i < 4; i++) {
@@ -639,10 +639,11 @@ int main(int argc, char **argv) {
 				} else {
 					int maxn, i;
 
+                    i = selcol == c && selected;
 					selcol = c ;
 					if(column[selcol].ncard) {
 						selected = 1;
-						seln = arg? arg : 1;
+						seln = i? seln + 1 : 1;
 						maxn = 1;
 						for(i = column[selcol].ncard - 1; i > 0; i--) {
 							if(((column[selcol].card[i]->kind & 1) != (column[selcol].card[i - 1]->kind & 1))
@@ -652,7 +653,11 @@ int main(int argc, char **argv) {
 								break;
 							}
 						}
-						if(seln > maxn) seln = maxn;
+						if(seln > maxn) {
+                            selected = 0;
+					        wselected = 0;
+                            seln = 0;
+                        }
 					}
 				}
 				face = c >= 'e';
