@@ -45,8 +45,6 @@ struct card *pile[4];
 
 int nmoves = 0, nundos = 0;
 
-int face = 0;
-int arg = 0;
 
 int selected = 0, wselected = 0, selcol, seln;
 
@@ -70,7 +68,6 @@ void newgame() {
 		col = &column[i % 8];
 		col->card[col->ncard++] = &deck[i];
 	}
-	face = 1;
 	selected = 0;
 	wselected = 0;
 }
@@ -120,16 +117,7 @@ void render() {
 	mvaddstr(0, 22 - strlen(buf) / 2, buf);
 	mvaddstr(1, 0, "[   ][   ][   ][   ]    [   ][   ][   ][   ]");
 	move(1, 21);
-	if(arg) {
-		char buf[16];
 
-		snprintf(buf, sizeof(buf), "%d", arg);
-		addstr(buf);
-	} else {
-		attrset(A_BOLD | COLOR_PAIR(4));
-		addstr(face? "=)" : "(=");
-		attrset(A_NORMAL);
-	}
 	for(i = 0; i < 4; i++) {
 		move(1, 1 + 5 * i);
 		if(work[i]) {
@@ -268,7 +256,6 @@ void popundo() {
 	
 	selected = 0;
 	wselected = 0;
-	arg = 0;
 }
 
 void helpscreen() {
@@ -502,202 +489,195 @@ int main(int argc, char **argv) {
 		}
 
 		c = getch();
-		if(c >= '0' && c <= '9') {
-			if(arg < 10 && !selected && !wselected) {
-				arg = arg * 10 + c - '0';
-			}
-		} else {
-			if(c == 32) {
-				if(selected || wselected) {
-					int i;
+		if(c == 32) {
+			if(selected || wselected) {
+				int i;
 
-					c = 27;
-					face = 0;
-                
-					for(i = 0; i < 4; i++) {
-						if(!work[i]) {
-						    c = workkey[i];
-							break;
-						}
+				c = 27;
+            
+				for(i = 0; i < 4; i++) {
+					if(!work[i]) {
+					    c = workkey[i];
+						break;
 					}
 				}
 			}
-			if(c == 'q') {
-				running = 0;
-			} else if(c == 27) {
-				selected = 0;
-				wselected = 0;
-			} else if(c == 'u') {
-				popundo();
-			} else if(c == '?') {
-				helpscreen();
-			} else if(c == 10 || c == 13 || c == KEY_ENTER) {
-				struct card *card = 0;
-				int may = 0;
+		}
+		if(c == 'q') {
+			running = 0;
+		} else if(c == 27) {
+			selected = 0;
+			wselected = 0;
+		} else if(c == 'u') {
+			popundo();
+		} else if(c == '?') {
+			helpscreen();
+		} else if(c == 10 || c == 13 || c == KEY_ENTER) {
+			struct card *card = 0;
+			int may = 0;
 
-				if(selected) {
-					struct column *col = &column[selcol];
+			if(selected) {
+				struct column *col = &column[selcol];
 
-					if(seln == 1 && col->ncard) {
-						card = col->card[col->ncard - 1];
-						if(pile[card->kind]) {
-							if(card->value == pile[card->kind]->value + 1) {
-								may = 1;
-							}
-						} else {
-							if(card->value == 1) {
-								may = 1;
-							}
-						}
-						if(may) {
-							pushundo();
-							pile[card->kind] = card;
-							col->ncard--;
-						}
-					}
-					selected = 0;
-				} else if(wselected) {
-					if(work[selcol]) {
-						card = work[selcol];
-						if(pile[card->kind]) {
-							if(card->value == pile[card->kind]->value + 1) {
-								may = 1;
-							}
-						} else {
-							if(card->value == 1) {
-								may = 1;
-							}
-						}
-						if(may) {
-							pushundo();
-							pile[card->kind] = card;
-							work[selcol] = 0;
-						}
-					}
-					wselected = 0;
-				}
-				face = 1;
-			} else if(c == ';' || c >= 'a' && c <= 's') {
-
-                switch(c) {
-                    case 'a' : c = 0; break;
-                    case 's' : c = 1; break;
-                    case 'd' : c = 2; break;
-                    case 'f' : c = 3; break;
-                    case 'j' : c = 4; break;
-                    case 'k' : c = 5; break;
-                    case 'l' : c = 6; break;
-                    case ';' : c = 7; break;
-                    default  : continue;
-                }
-
-				struct column *col = &column[c];
-				int may = 0;
-
-				if(selected && selcol != c) {
-					int nfree = 0, i;
-
-					for(i = 0; i < 4; i++) {
-						if(!work[i]) nfree++;
-					}
-					for(i = 0; i < 8; i++) {
-						if(!column[i].ncard) nfree++;
-					}
-					if(nfree >= seln - 1 + !col->ncard) {
-						int first = column[selcol].ncard - seln;
-						struct card *card = column[selcol].card[first];
-
-						may = 1;
-						if(col->ncard
-						&& ((card->kind & 1) == (col->card[col->ncard - 1]->kind & 1))) may = 0;
-						if(col->ncard
-						&& (card->value + 1 != col->card[col->ncard - 1]->value)) may = 0;
-						if(may) {
-							pushundo();
-							for(i = 0; i < seln; i++) {
-								col->card[col->ncard++] = column[selcol].card[first + i];
-							}
-							column[selcol].ncard -= seln;
-						}
-					}
-					selected = 0;
-				} else if(wselected) {
-					if(col->ncard) {
-						if((col->card[col->ncard - 1]->kind & 1) != (work[selcol]->kind & 1)
-						&& (col->card[col->ncard - 1]->value == work[selcol]->value + 1)) {
+				if(seln == 1 && col->ncard) {
+					card = col->card[col->ncard - 1];
+					if(pile[card->kind]) {
+						if(card->value == pile[card->kind]->value + 1) {
 							may = 1;
 						}
 					} else {
-						may = 1;
+						if(card->value == 1) {
+							may = 1;
+						}
 					}
 					if(may) {
 						pushundo();
-						col->card[col->ncard++] = work[selcol];
-						work[selcol] = 0;
-					}
-					wselected = 0;
-				} else {
-					int maxn, i;
-
-                    i = selcol == c && selected;
-					selcol = c ;
-					if(column[selcol].ncard) {
-						selected = 1;
-						seln = i? seln + 1 : 1;
-						maxn = 1;
-						for(i = column[selcol].ncard - 1; i > 0; i--) {
-							if(((column[selcol].card[i]->kind & 1) != (column[selcol].card[i - 1]->kind & 1))
-							&& (column[selcol].card[i]->value + 1 == column[selcol].card[i - 1]->value)) {
-								maxn++;
-							} else {
-								break;
-							}
-						}
-						if(seln > maxn) {
-                            selected = 0;
-					        wselected = 0;
-                            seln = 0;
-                        }
-					}
-				}
-				face = c >= 'e';
-			} else if(c >= 'A' && c <= 'S') {
-				int w = c - 'w';
-                switch(c) {
-                    case 'A' : w = 0; break;
-                    case 'S' : w = 1; break;
-                    case 'D' : w = 2; break;
-                    case 'F' : w = 3; break;
-                    default : continue;
-                }
-
-				if(selected) {
-					struct column *col = &column[selcol];
-
-					if(seln == 1 && !work[w] && col->ncard) {
-						pushundo();
-						work[w] = col->card[col->ncard - 1];
+						pile[card->kind] = card;
 						col->ncard--;
 					}
-					selected = 0;
-				} else if(wselected) {
-					if(!work[w]) {
+				}
+				selected = 0;
+			} else if(wselected) {
+				if(work[selcol]) {
+					card = work[selcol];
+					if(pile[card->kind]) {
+						if(card->value == pile[card->kind]->value + 1) {
+							may = 1;
+						}
+					} else {
+						if(card->value == 1) {
+							may = 1;
+						}
+					}
+					if(may) {
 						pushundo();
-						work[w] = work[selcol];
+						pile[card->kind] = card;
 						work[selcol] = 0;
 					}
-					wselected = 0;
-				} else {
-					if(work[w]) {
-						wselected = 1;
-						selcol = w;
+				}
+				wselected = 0;
+			}
+
+		} else if(c == ';' || c >= 'a' && c <= 's') {
+
+            switch(c) {
+                case 'a' : c = 0; break;
+                case 's' : c = 1; break;
+                case 'd' : c = 2; break;
+                case 'f' : c = 3; break;
+                case 'j' : c = 4; break;
+                case 'k' : c = 5; break;
+                case 'l' : c = 6; break;
+                case ';' : c = 7; break;
+                default  : continue;
+            }
+
+			struct column *col = &column[c];
+			int may = 0, nfree = 0, i;
+
+  			for(i = 0; i < 4; i++) {
+   				if(!work[i]) nfree++;
+   			}
+   			for(i = 0; i < 8; i++) {
+   				if(!column[i].ncard) nfree++;
+   			}
+
+			if(selected && selcol != c) {
+
+				if(nfree >= seln - 1 + !col->ncard) {
+					int first = column[selcol].ncard - seln;
+					struct card *card = column[selcol].card[first];
+
+					may = 1;
+					if(col->ncard
+					&& ((card->kind & 1) == (col->card[col->ncard - 1]->kind & 1))) may = 0;
+					if(col->ncard
+					&& (card->value + 1 != col->card[col->ncard - 1]->value)) may = 0;
+					if(may) {
+						pushundo();
+						for(i = 0; i < seln; i++) {
+							col->card[col->ncard++] = column[selcol].card[first + i];
+						}
+						column[selcol].ncard -= seln;
 					}
 				}
-				face = 0;
+				selected = 0;
+			} else if(wselected) {
+				if(col->ncard) {
+					if((col->card[col->ncard - 1]->kind & 1) != (work[selcol]->kind & 1)
+					&& (col->card[col->ncard - 1]->value == work[selcol]->value + 1)) {
+						may = 1;
+					}
+				} else {
+					may = 1;
+				}
+				if(may) {
+					pushundo();
+					col->card[col->ncard++] = work[selcol];
+					work[selcol] = 0;
+				}
+				wselected = 0;
+			} else {
+				int maxn, i;
+
+                i = selected && selcol == c;
+				selcol = c ;
+				if(column[selcol].ncard) {
+					selected = 1;
+					seln = i? seln + 1 : 1;
+					maxn = 1;
+					for(i = column[selcol].ncard - 1; i > 0; i--) {
+						if(((column[selcol].card[i]->kind & 1) != (column[selcol].card[i - 1]->kind & 1))
+						&& (column[selcol].card[i]->value + 1 == column[selcol].card[i - 1]->value)) {
+							maxn++;
+						} else {
+							break;
+						}
+					}
+					if(seln > maxn || seln - 1 > nfree) {
+                        selected = 0;
+				        wselected = 0;
+                        seln = 0;
+                    }
+				}
 			}
-			arg = 0;
+
+		} else if(c >= 'A' && c <= 'S') {
+			int w;
+            switch(c) {
+                case 'A' : w = 0; break;
+                case 'S' : w = 1; break;
+                case 'D' : w = 2; break;
+                case 'F' : w = 3; break;
+                default : continue;
+            }
+
+			if(selected) {
+				struct column *col = &column[selcol];
+
+				if(seln == 1 && !work[w] && col->ncard) {
+					pushundo();
+					work[w] = col->card[col->ncard - 1];
+					col->ncard--;
+				}
+				selected = 0;
+			} else if(wselected) {
+				if(!work[w]) {
+					pushundo();
+					work[w] = work[selcol];
+					work[selcol] = 0;
+				}
+				wselected = 0;
+			} else {
+				if(work[w]) {
+					wselected = 1;
+					selcol = w;
+				}
+			}
 		}
+
 	}
+
 	endwin();
 	return 0;
 }
