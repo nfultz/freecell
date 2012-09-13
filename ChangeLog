@@ -1,0 +1,12 @@
+0.14	Removed inconsistent spelling of "suite".
+
+0.13	Now the cursor is moved out of the way during gameplay (some terminal
+	emulators don't support making the cursor invisible).
+
+	In the help menu, if "any key" was a cursor key, the text viewer would
+	skip ahead more than one page. Fixed.
+
+	Added some runtime options, enabling the user to change the suite
+	symbols.
+
+0.12	Internal beta release.

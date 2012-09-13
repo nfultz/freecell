@@ -1,0 +1,7 @@
+1.0	Support for game numbers, according to the standard freecell game
+	numbering scheme.
+
+0.13	Ability to change suit symbols from the command line.
+	Compatibility fixes for MacOS X.
+
+0.12	Internal beta release.

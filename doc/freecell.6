@@ -1,0 +1,78 @@
+.TH "freecell" 6
+.SH NAME
+freecell \- A console implementation of the solitaire game Freecell
+.SH SYNOPSIS
+.B freecell
+.IR "" "[" "options" "] [" "game-number" "]"
+.SH DESCRIPTION
+This is
+.BR freecell ,
+a console (ncurses) version of the popular solitaire game.
+.SH OPTIONS
+.IP "-s, --suites=ABCD"
+Configures four characters as suite symbols.
+.IP "-h, --help"
+Display usage information.
+.IP "-V, --version"
+Display version information.
+.SH THE CARDS
+In this game, playing cards are illustrated using a number (the value of the
+card) followed by a suite symbol. By default, these characters will be:
+
+	s	Spades
+.br
+	h	Hearts
+.br
+	c	Clubs
+.br
+	d	Diamonds
+.br
+
+You may configure freecell to use other characters, using the --suites option.
+.SH GAMEPLAY
+The aim of the game is to move all cards to the foundations in the upper right
+corner.
+
+You may only move one card at a time. The foundations accept cards of
+increasing value within each suite (you may place
+.B "2d"
+on top of
+.BR "1d" ")."
+The columns accept cards of falling value, different colour (you may place
+.B "2d"
+on either
+.B "3s"
+or
+.BR "3c" ")."
+The four free cells in the upper left corner will accept any
+cards, but at most one card per cell.
+An empty column will also accept any card.
+
+To move a card, type the name of the column (a-h) or cell (w-z) which contains
+the card, followed by the name of the destination cell or column. Press the
+enter key for the destination in order to move the card to one of the
+foundation piles. As a convenience, you may also move a card to an unspecified
+free cell, by substituting the space bar for the destination.
+
+While you may only move one card at a time, you can use free cells and empty
+columns as temporary buffers. That way, it is possible to move a range of cards
+from one column to another, as long as they are already in an acceptable
+order. The program can do this automatically for you: Prefix your command
+with the number of cards to move, e.g. 3ab will move 3 cards from column a to
+column b and requires 2 free cells or empty columns.
+
+When it is deemed safe to do so, cards will automatically be moved to the
+foundation piles.
+
+Almost every game is solvable, but the level of difficulty can vary a lot.
+
+.B Good luck, and don't get too addicted!
+.SH SEE ALSO
+http://en.wikipedia.org/wiki/Freecell
+.br
+http://www.linusakesson.net/
+.SH AUTHOR
+Modern freecell was invented by Paul Alfille in 1978.
+.br
+This implementation of freecell was written from scratch by Linus Akesson
+<linus@linusakesson.net> in 2007.
