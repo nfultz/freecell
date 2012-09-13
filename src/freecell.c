@@ -505,6 +505,9 @@ int main(int argc, char **argv) {
 		}
 		if(c == 'q') {
 			running = 0;
+        } else if(c == 'r') {
+	        newgame();
+            dealgame(seed);
 		} else if(c == 27) {
 			selected = 0;
 			wselected = 0;
