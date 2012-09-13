@@ -21,6 +21,8 @@
 #include <getopt.h>
 #include <ncurses.h>
 #include <time.h>
+#include <locale.h>
+
 
 #include "freecell.h"
 
@@ -32,7 +34,7 @@ struct undo {
 	struct card *work[4], *pile[4];
 } *history = 0;
 
-char *suitesymbols[] = {"s", "h", "c", "d"};
+char *suitesymbols[] = {"\u2660", "\u2665", "\u2663", "\u2666"};
 
 
 struct card deck[52];
@@ -91,8 +93,6 @@ void cardstr(struct card *c, int sel) {
     int n = pile[c->kind] ? pile[c->kind]->value + 1 : 1; 
     if(c->value == n)
         attron(A_BOLD);
-
-
 
 	addstr(buf);
 	attrset(A_NORMAL);
@@ -428,6 +428,8 @@ int main(int argc, char **argv) {
 
 	newgame();
 	dealgame(seed);
+    
+    setlocale(LC_ALL,"");
 
 	initscr();
 	noecho();
@@ -435,10 +437,12 @@ int main(int argc, char **argv) {
 	start_color();
 	keypad(stdscr, TRUE);
     use_default_colors();
-	init_pair(1, COLOR_CYAN, -1);
+
+	init_pair(1, COLOR_RED, -1);
 	init_pair(2, COLOR_WHITE, COLOR_BLUE);
-	init_pair(3, COLOR_CYAN, COLOR_BLUE);
+	init_pair(3, COLOR_RED, COLOR_BLUE);
 	init_pair(4, COLOR_YELLOW, -1);
+
 	while(running) {
 		int c;
 

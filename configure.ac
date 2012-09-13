@@ -12,7 +12,7 @@ AC_PREFIX_DEFAULT([/usr/games])
 AC_PROG_CC
 
 # Checks for libraries.
-AC_CHECK_LIB([ncurses], [start_color])
+AC_CHECK_LIB([ncursesw], [start_color])
 
 # Checks for header files.
 AC_HEADER_STDC
