@@ -36,6 +36,7 @@ struct undo {
 
 char *suitesymbols[] = {"\u2660", "\u2665", "\u2663", "\u2666"};
 
+char workkey[] = {'A', 'S', 'D', 'F'};
 
 struct card deck[52];
 struct column column[8];
@@ -138,7 +139,7 @@ void render() {
 				sel = 1;
 			}
 			cardstr(work[i], sel);
-			mvaddch(2, 2 + 5 * i, 'w' + i);
+			mvaddch(2, 2 + 5 * i, workkey[i]);
 		}
 	}
 	for(i = 0; i < 4; i++) {
@@ -510,16 +511,14 @@ int main(int argc, char **argv) {
 				if(selected || wselected) {
 					int i;
 
+					c = 27;
+					face = 0;
+                
 					for(i = 0; i < 4; i++) {
 						if(!work[i]) {
+						    c = workkey[i];
 							break;
 						}
-					}
-					if(i < 4) {
-						c = 'w' + i;
-					} else {
-						c = 27;
-						face = 0;
 					}
 				}
 			}
@@ -657,8 +656,15 @@ int main(int argc, char **argv) {
 					}
 				}
 				face = c >= 'e';
-			} else if(c >= 'w' && c <= 'z') {
+			} else if(c >= 'A' && c <= 'S') {
 				int w = c - 'w';
+                switch(c) {
+                    case 'A' : w = 0; break;
+                    case 'S' : w = 1; break;
+                    case 'D' : w = 2; break;
+                    case 'F' : w = 3; break;
+                    default : continue;
+                }
 
 				if(selected) {
 					struct column *col = &column[selcol];
