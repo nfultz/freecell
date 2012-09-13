@@ -34,6 +34,7 @@ struct undo {
 
 char *suitesymbols[] = {"s", "h", "c", "d"};
 
+
 struct card deck[52];
 struct column column[8];
 struct card *work[4];
@@ -96,13 +97,17 @@ void render() {
 
 	erase();
 	mvaddstr(0, 0, "space                                  enter");
-	printf("\033]0;Freecell #%d [%2d %2d %2d %2d] Move %3d Undo %3d\007", 
+
+    // sets staus inside screen.
+    if(getenv("STY"))
+	printf("\033_Freecell #%d [%d %d %d %d]\033\\", 
         seed, 
         pile[0] ? pile[0]->value : 0,
         pile[1] ? pile[1]->value : 0,
         pile[2] ? pile[2]->value : 0,
-        pile[3] ? pile[3]->value : 0,
-        nmoves, nundos);
+        pile[3] ? pile[3]->value : 0);
+
+
 	snprintf(buf, sizeof(buf), "#%d", seed);
 	mvaddstr(0, 22 - strlen(buf) / 2, buf);
 	mvaddstr(1, 0, "[   ][   ][   ][   ]    [   ][   ][   ][   ]");
