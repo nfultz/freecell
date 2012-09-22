@@ -35,6 +35,7 @@ struct undo {
 } *history = 0;
 
 char *suitesymbols[] = {"\u2660", "\u2665", "\u2663", "\u2666"};
+char *ranksymbols =  "-A234567890JQK";
 
 char workkey[] = {'A', 'S', 'D', 'F'};
 
@@ -75,7 +76,7 @@ void newgame() {
 void cardstr(struct card *c, int sel) {
 	char buf[16];
 
-	snprintf(buf, sizeof(buf), "%2d%s", c->value, suitesymbols[c->kind]);
+	snprintf(buf, sizeof(buf), "%c%s", ranksymbols[c->value], suitesymbols[c->kind]);
 	if(c->kind & 1) {
 		if(sel) {
 			attrset(COLOR_PAIR(3));
