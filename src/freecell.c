@@ -50,6 +50,7 @@ int nmoves = 0, nundos = 0;
 int selected = 0, wselected = 0, selcol, seln;
 
 unsigned int seed;
+time_t start; 
 
 void newgame() {
 	int i;
@@ -71,6 +72,7 @@ void newgame() {
 	}
 	selected = 0;
 	wselected = 0;
+    start = time(0);
 }
 
 void cardstr(struct card *c, int sel) {
@@ -406,11 +408,11 @@ int main(int argc, char **argv) {
 	argc -= optind;
 	argv += optind;
 
-    time_t start = time(0);
 
 	if(argc == 1) {
 		seed = atoi(argv[0]);
 	} else if(argc == 0) {
+        start = time(0);
 		srand(start);
 		seed = rand() & 0xffffffff;
 	} else usage();
@@ -483,10 +485,11 @@ int main(int argc, char **argv) {
 
             }
 
+	        attrset(A_NORMAL);
 
 
 
-			break;
+//			break;
 		}
 
 		c = getch();
@@ -508,6 +511,11 @@ int main(int argc, char **argv) {
 			running = 0;
         } else if(c == 'r') {
 	        newgame();
+            dealgame(seed);
+        } else if(c == 'n') {
+	        newgame();
+		    seed = rand() & 0xffffffff;
+            nmoves = nundos = 0;
             dealgame(seed);
 		} else if(c == 27) {
 			selected = 0;
