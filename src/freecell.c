@@ -358,7 +358,7 @@ void helpscreen() {
 	getch();
 }
 
-usage() {
+int usage() {
 	printf("freecell " RELEASE " by Linus Akesson\n");
 	printf("http://www.linusakesson.net\n");
 	printf("\n");
@@ -474,10 +474,10 @@ int main(int argc, char **argv) {
 
                 char buf[256];
 
-                sprintf(&buf, "%s/.freecell", getenv("HOME"));
-                FILE* f = fopen(&buf, "a");
+                sprintf(buf, "%s/.freecell", getenv("HOME"));
+                FILE* f = fopen(buf, "a");
 
-                strftime(&buf,256,"%m/%d/%Y",localtime(&start));
+                strftime(buf,256,"%m/%d/%Y",localtime(&start));
 
                 fprintf(f, "%s, %5.0f,  %d,%3d,%3d\n", &buf, difftime(time(0), start),
                       seed, nmoves, nundos);
